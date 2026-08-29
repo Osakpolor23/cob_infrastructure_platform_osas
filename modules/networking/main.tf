@@ -1,6 +1,5 @@
 # create vpc
 resource "aws_vpc" "vpc" {
-  region = var.region
   cidr_block       = var.vpc_cidr
   instance_tenancy = "default"
   enable_dns_support = true
@@ -37,7 +36,7 @@ resource "aws_subnet" "public" {
 
   vpc_id     = aws_vpc.vpc.id
   cidr_block = each.value.cidr_block
-  availability_zone = coalesce(each.value.availability_zone, sort(data.aws_availability_zones.available.names)[index(keys(var.public_subnets), each.key)])
+  availability_zone = coalesce(each.value.availability_zone, sort(data.aws_availability_zones.available_zones.names)[index(keys(var.public_subnets), each.key)])
 
   tags = {
     Name = "${local.resource_name}-${each.key}"
@@ -50,7 +49,23 @@ resource "aws_subnet" "private" {
 
   vpc_id     = aws_vpc.vpc.id
   cidr_block = each.value.cidr_block
-  availability_zone = coalesce(each.value.availability_zone, sort(data.aws_availability_zones.available.names)[index(keys(var.private_subnets), each.key)])
+  availability_zone = coalesce(each.value.availability_zone, sort(data.aws_availability_zones.available_zones.names)[index(keys(var.private_subnets), each.key)])
+
+  tags = {
+    Name = "${local.resource_name}-${each.key}"
+  }
+}
+
+# create a database subnet for a rds service
+resource "aws_subnet" "database" {
+  for_each = var.database_subnets
+
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = each.value.cidr_block
+  availability_zone = coalesce(
+    each.value.availability_zone,
+    sort(data.aws_availability_zones.available_zones.names)[index(keys(var.database_subnets), each.key)]
+  )
 
   tags = {
     Name = "${local.resource_name}-${each.key}"
@@ -128,6 +143,24 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private_route_table[each.key].id
 }
 
+# database subnet route table not associated with nat
+resource "aws_route_table" "database_route_table" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "${local.resource_name}-database-rt"
+  }
+}
+
+# database subnet route table association 
+resource "aws_route_table_association" "database" {
+  for_each = aws_subnet.database
+
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.database_route_table.id
+}
+
+# create a security group
 resource "aws_security_group" "security_group" {
   name        = "${local.resource_name}-${var.name_suffix}"
   description = var.description

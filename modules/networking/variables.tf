@@ -1,8 +1,3 @@
-variable "region" {
-    description = "The AWS region"
-    type = string
-}
-
 variable "project_name" {
     description = "The name of the project"
     type = string
@@ -37,6 +32,14 @@ variable "private_subnets" {
     type = map(object({
         cidr_block        = string
         availability_zone = optional(string)
+  }))
+}
+
+variable "database_subnets" {
+  description = "Map of database subnets to create."
+  type = map(object({
+    cidr_block        = string
+    availability_zone = optional(string)
   }))
 }
 
