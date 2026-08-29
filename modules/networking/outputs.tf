@@ -58,5 +58,13 @@ output "database_subnet_ids_list" {
   value = [for s in aws_subnet.database : s.id]
 }
 
+output "database_subnet_id_map" {
+  description = "Map of database subnet name to subnet ID"
+  value       = { for k, s in aws_subnet.database : k => s.id }
+}
 
+output "database_route_table_id" {
+  description = "ID of the database route table"
+  value       = aws_route_table.database_route_table.id
+}
 
