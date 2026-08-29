@@ -25,7 +25,7 @@ data "aws_availability_zones" "available_zones" {
   state = "available"
   # filter for only availability-zone(omit local zones and wavelength zone)
   filter {
-    name   = "zone_type"
+    name   = "zone-type"
     values = ["availability-zone"]
   }
 }
@@ -127,7 +127,7 @@ resource "aws_route_table" "private_route_table" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat_gateway[each.key].id
+    gateway_id = local.nat_gateway_by_az[each.value.availability_zone]
   }
 
   tags = {
