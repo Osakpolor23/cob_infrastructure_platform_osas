@@ -11,3 +11,11 @@ module "networking" {
   ingress_rules    = var.ingress_rules
 
 }
+
+module "s3_bucket" {
+  source = "./modules/s3"
+  
+  project_name     = var.project_name
+  environment      = var.environment
+  bucket_name      = var.bucket_name
+}

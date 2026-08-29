@@ -55,3 +55,8 @@ variable "ingress_rules" {
   }))
   default = []
 }
+
+variable "bucket_name" {
+  description = "Base name for the S3 bucket (will be prefixed with project-environment and suffixed with a six-digit random string for uniqueness)"
+  type        = string
+}
