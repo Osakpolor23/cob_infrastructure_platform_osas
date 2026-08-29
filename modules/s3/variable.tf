@@ -15,6 +15,6 @@ variable "environment" {
 }
 
 variable "bucket_name" {
-  description = "Name of the S3 bucket"
+  description = "The name of the S3 bucket"
   type        = string
 }

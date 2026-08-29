@@ -5,10 +5,10 @@ resource "random_string" "bucket_suffix" {
 }
 
 resource "aws_s3_bucket" "s3_bucket" {
-  bucket = "${local.resource_name}-${var.bucket_name}-${random_string.bucket_suffix.result}"
+  bucket = lower("${local.resource_name}-${var.bucket_name}-${random_string.bucket_suffix.result}")
 
   tags = {
-    Name = "${local.resource_name}-s3_bucket"
+    Name = "${local.resource_name}-s3-bucket"
   }
 }
 
