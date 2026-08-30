@@ -12,10 +12,22 @@ module "networking" {
 
 }
 
+module "iam" {
+  source = "./modules/iam"
+
+  project_name               = var.project_name
+  environment                = var.environment
+  data_bucket_arn            = module.s3_bucket.bucket_arn
+  athena_results_bucket_arn  = "arn:aws:s3:::cob-dev-athena-results-placeholder"
+  iam_group                  = var.iam_group
+  iam_users                  = var.iam_users
+}
+
 module "s3_bucket" {
   source = "./modules/s3"
-  
-  project_name     = var.project_name
-  environment      = var.environment
-  bucket_name      = var.bucket_name
+
+  project_name = var.project_name
+  environment  = var.environment
+  bucket_name  = var.bucket_name
 }
+

@@ -29,3 +29,20 @@ ingress_rules = [
 ]
 
 bucket_name = "s3-bucket"
+
+iam_group = "analysts"
+
+iam_users = {
+  "John-analyst" = {
+    groups         = ["COB-dev-analysts"]
+    console_access = true
+  },
+  "Richard-analyst" = {
+    groups         = ["COB-dev-analysts"]
+    console_access = true
+  },
+  "Jane-analyst" = {
+    groups         = ["COB-dev-analysts"]
+    console_access = true
+  }
+}
