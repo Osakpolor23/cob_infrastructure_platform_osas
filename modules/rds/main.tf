@@ -77,8 +77,9 @@ resource "aws_db_instance" "postgres" {
   backup_window                 = var.backup_window
   maintenance_window             = var.maintenance_window
   performance_insights_enabled  = var.performance_insights_enabled
-  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
-
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade", "iam-db-auth-error"]
+  # iam-db-auth-error included pre-emptively for future IAM DB auth support;
+  # currently inactive since iam_database_authentication_enabled is not set
   tags = {
     Name = "${local.resource_name}-postgres"
   }
