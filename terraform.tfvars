@@ -1,5 +1,5 @@
 region       = "us-east-1"
-project_name = "COB"
+project_name = "cob"
 environment  = "dev"
 vpc_cidr     = "10.0.0.0/16"
 
@@ -34,15 +34,15 @@ iam_group = "analysts"
 
 iam_users = {
   "John-analyst" = {
-    groups         = ["COB-dev-analysts"]
+    groups         = ["cob-dev-analysts"]
     console_access = true
   },
   "Richard-analyst" = {
-    groups         = ["COB-dev-analysts"]
+    groups         = ["cob-dev-analysts"]
     console_access = true
   },
   "Jane-analyst" = {
-    groups         = ["COB-dev-analysts"]
+    groups         = ["cob-dev-analysts"]
     console_access = true
   }
 }

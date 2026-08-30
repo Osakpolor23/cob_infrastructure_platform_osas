@@ -6,7 +6,7 @@ variable "region" {
 variable "project_name" {
   description = "The name of the project"
   type        = string
-  default     = "COB"
+  default     = "cob"
 }
 
 variable "environment" {
