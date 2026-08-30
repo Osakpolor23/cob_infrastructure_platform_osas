@@ -97,3 +97,20 @@ output "athena_workgroup_name" {
   description = "The Athena Workgroup name that enforces the query result target location"
   value       = module.data_platform_services.athena_workgroup_name
 }
+
+output "db_instance_endpoint" {
+  value     = module.rds.db_instance_endpoint
+  sensitive = true
+}
+
+output "db_instance_id" {
+  value = module.rds.db_instance_id
+}
+
+output "db_secret_arn" {
+  value = module.rds.db_secret_arn
+}
+
+output "rds_security_group_id" {
+  value = module.rds.rds_security_group_id
+}

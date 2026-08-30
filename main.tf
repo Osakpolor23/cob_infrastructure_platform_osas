@@ -40,3 +40,14 @@ module "data_platform_services" {
   glue_crawler_role_arn = module.iam.glue_crawler_role_arn
 }
 
+module "rds" {
+  source = "./modules/rds"
+
+  project_name          = var.project_name
+  environment           = var.environment
+  vpc_id                = module.networking.vpc_id
+  database_subnet_ids   = module.networking.database_subnet_ids_list
+  app_security_group_id = module.networking.security_group_id
+  db_name               = var.db_name
+  backup_retention_period  = var.backup_retention_period
+}

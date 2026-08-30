@@ -46,3 +46,6 @@ iam_users = {
     console_access = true
   }
 }
+
+db_name = "appdb_instance"
+backup_retention_period = 1

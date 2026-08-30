@@ -75,3 +75,15 @@ variable "iam_users" {
   }))
   default = {}
 }
+
+variable "db_name" {
+  description = "PostgreSQL database name"
+  type        = string
+  default     = "appdb_instance"
+}
+
+variable "backup_retention_period" {
+  description = "Number of days to retain automated RDS backups"
+  type        = number
+  default     = 1
+}
