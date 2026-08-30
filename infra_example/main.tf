@@ -1,5 +1,5 @@
 module "networking" {
-  source = "./modules/networking"
+  source = "../modules/networking"
 
   region           = var.region
   project_name     = var.project_name
@@ -13,7 +13,7 @@ module "networking" {
 }
 
 module "iam" {
-  source = "./modules/iam"
+  source = "../modules/iam"
 
   project_name              = var.project_name
   environment               = var.environment
@@ -24,7 +24,7 @@ module "iam" {
 }
 
 module "s3_bucket" {
-  source = "./modules/s3"
+  source = "../modules/s3"
 
   project_name = var.project_name
   environment  = var.environment
@@ -32,7 +32,7 @@ module "s3_bucket" {
 }
 
 module "data_platform_services" {
-  source = "./modules/data_platform_services"
+  source = "../modules/data_platform_services"
 
   project_name          = var.project_name
   environment           = var.environment
@@ -41,7 +41,7 @@ module "data_platform_services" {
 }
 
 module "rds" {
-  source = "./modules/rds"
+  source = "../modules/rds"
 
   project_name          = var.project_name
   environment           = var.environment
