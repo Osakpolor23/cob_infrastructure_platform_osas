@@ -82,6 +82,10 @@ COB/
 │   ├── providers_config.tf
 │   └── .gitignore
 │
+|── images/ 
+|   ├── cob_data_platform_architectural_diagram.gif
+|   └── deployment_screenshot.png
+|
 └── README.md                 
 ```
 
@@ -116,7 +120,7 @@ only.
 The diagram below demonstrates a focused use case: exposing data stored in
 S3 to analytics users via Glue and Athena, governed by IAM.
 
-![Architecture Diagram](docs/architecture-diagram.png)
+![Architecture Diagram](images/cob_data_platform_architectural_diagram.gif)
 
 **Flow:**
 1. Application data lands in the **S3** module's bucket.
@@ -130,12 +134,11 @@ S3 to analytics users via Glue and Athena, governed by IAM.
 
 ### Deployment Screenshots
 
-- [VPC and subnet layout](docs/screenshots/vpc.png)
-- [S3 bucket configuration](docs/screenshots/s3-bucket.png)
-- [Glue Data Catalog with discovered tables](docs/screenshots/glue-catalog.png)
-- [Athena query execution](docs/screenshots/athena-query.png)
-- [Athena query results](docs/screenshots/athena-results.png)
-- [IAM roles and groups](docs/screenshots/iam-roles.png)
+- [S3 bucket configuration](images/s3-bucket.png)
+- [Glue Data Catalog with discovered tables](images/glue-catalog.png)
+- [Athena query execution](images/athena-query.png)
+- [Athena query results](images/athena-results.png)
+- [IAM roles and groups](images/iam-roles.png)
 
 ---
 
