@@ -177,7 +177,7 @@ Before using any COB module, ensure the following are in place:
 
 ---
 
-## Getting Started / Usage
+## Getting Started
 
 ```bash
 cd infra_example
