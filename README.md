@@ -161,18 +161,18 @@ Before using any COB module, ensure the following are in place:
 
 ### Terraform & Providers
 
-- Terraform >= 1.6
+- Terraform >= 1.15
 - Provider versions used across these modules:
 
 | Provider | Version | Purpose |
 |---|---|---|
-| `hashicorp/aws` | `~> 5.0` | All AWS resource provisioning |
-| `hashicorp/random` | `~> 3.6` | Password/suffix generation for uniqueness |
-| `hashicorp/local` | `~> 2.5` | (used in early local-file learning exercises, not in the COB modules themselves) |
+| `hashicorp/aws` | `="6.58.0"` | All AWS resource provisioning |
+| `hashicorp/random` | `="3.9.0"` | Password/suffix generation for uniqueness |
+| `hashicorp/local` | `="2.9.0"` | (used in early local-file learning exercises, not in the COB modules themselves) |
 
 ### Backend
 
-- An S3 bucket (with native S3 locking, no DynamoDB table required) is
+- An S3 bucket (with use_lockfile and encrypt set to true) is
   used for remote state — configured in `infra_example/backend.tf`.
 
 ---
