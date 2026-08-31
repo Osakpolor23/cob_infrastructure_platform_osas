@@ -8,7 +8,7 @@ resource "aws_s3_bucket" "s3_bucket" {
   bucket = lower("${local.resource_name}-${var.bucket_name}-${random_string.bucket_suffix.result}")
 
   tags = {
-    Name = "${local.resource_name}-s3-bucket"
+    Name = lower("${local.resource_name}-s3-bucket")
   }
 }
 
