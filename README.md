@@ -120,7 +120,7 @@ only.
 The diagram below demonstrates a focused use case: exposing data stored in
 S3 to analytics users via Glue and Athena, governed by IAM.
 
-![Architecture Diagram](images/cob_data_platform_architectural_diagram.gif)
+![Architecture Diagram](images/cob_data_platform_architecture_diagram.gif)
 
 **Flow:**
 1. Application data lands in the **S3** module's bucket.
