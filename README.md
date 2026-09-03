@@ -111,7 +111,7 @@ only.
 | **iam** | Least-privilege IAM roles for EC2, ECS (execution + task), and Glue; an analysts group scoped to Athena/Glue/S3 read access; user provisioning | [modules/iam/README.md](modules/iam/README.md) |
 | **rds** | PostgreSQL RDS instance deployed into isolated database subnets, encrypted, credentials generated and stored in Secrets Manager (never in state or tfvars) | [modules/rds/README.md](modules/rds/README.md) |
 | **compute** | EC2 via Launch Template + Auto Scaling Group (public and private tiers, independently toggleable) and ECS Fargate cluster/service | [modules/compute/README.md](modules/compute/README.md) |
-| **data_platform** | Glue Data Catalog + crawler to catalog S3 data, plus an Athena workgroup with enforced, encrypted query result storage | [modules/data_platform_services/README.md](modules/data_platform/README.md) |
+| **data_platform** | Glue Data Catalog + crawler to catalog S3 data, plus an Athena workgroup with enforced, encrypted query result storage | [modules/data_platform_services/README.md](modules/data_platform_services/README.md) |
 
 ---
 
