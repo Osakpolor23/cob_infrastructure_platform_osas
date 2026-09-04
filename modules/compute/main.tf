@@ -244,8 +244,6 @@ resource "aws_ecs_service" "service" {
   desired_count   = var.ecs_desired_count
   launch_type     = var.ecs_launch_type
 
-  # awsvpc network mode (Fargate, or EC2 tasks explicitly using awsvpc)
-  # requires network_configuration; EC2 tasks using bridge/host mode do not.
   dynamic "network_configuration" {
     for_each = var.ecs_launch_type == "FARGATE" || var.ecs_network_mode == "awsvpc" ? [1] : []
     content {
