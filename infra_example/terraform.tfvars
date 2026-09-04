@@ -49,3 +49,10 @@ iam_users = {
 
 db_name = "appdb_instance"
 backup_retention_period = 1
+
+
+container_image = "public.ecr.aws/nginx/nginx:latest"
+create_public_ec2  = false
+create_private_ec2 = false
+create_ecs         = true
+ecs_launch_type = "FARGATE"

@@ -87,3 +87,32 @@ variable "backup_retention_period" {
   type        = number
   default     = 1
 }
+
+variable "container_image" {
+  description = "Container image to run in the ECS task"
+  type        = string
+}
+
+variable "create_public_ec2" {
+  description = "Whether to create the public-facing (front-end) EC2 Auto Scaling Group"
+  type        = bool
+  default     = false
+}
+
+variable "create_private_ec2" {
+  description = "Whether to create the private (back-end) EC2 Auto Scaling Group"
+  type        = bool
+  default     = false
+}
+
+variable "create_ecs" {
+  description = "Whether to create the ECS cluster and service"
+  type        = bool
+  default     = false
+}
+
+variable "ecs_launch_type" {
+  description = "ECS launch type: FARGATE or EC2"
+  type        = string
+  default     = "FARGATE"
+}

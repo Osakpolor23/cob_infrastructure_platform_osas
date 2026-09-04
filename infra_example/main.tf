@@ -9,7 +9,6 @@ module "networking" {
   private_subnets  = var.private_subnets
   database_subnets = var.database_subnets
   ingress_rules    = var.ingress_rules
-
 }
 
 module "iam" {
@@ -50,4 +49,29 @@ module "rds" {
   app_security_group_id = module.networking.security_group_id
   db_name               = var.db_name
   backup_retention_period  = var.backup_retention_period
+}
+
+module "compute" {
+  source = "../modules/compute"
+
+  project_name = var.project_name
+  environment  = var.environment
+
+  public_subnet_ids  = module.networking.public_subnet_ids_list
+  private_subnet_ids = module.networking.private_subnet_ids_list
+
+  public_security_group_id  = module.networking.public_security_group_id
+  private_security_group_id = module.networking.security_group_id
+
+  public_ec2_role_name  = module.iam.public_ec2_role_name
+  private_ec2_role_name = module.iam.private_ec2_role_name
+
+  create_public_ec2  = var.create_public_ec2
+  create_private_ec2 = var.create_private_ec2
+
+  create_ecs              = var.create_ecs
+  ecs_launch_type          = var.ecs_launch_type
+  container_image         = var.container_image
+  ecs_execution_role_arn  = module.iam.ecs_execution_role_arn
+  ecs_task_role_arn       = module.iam.ecs_task_role_arn
 }
