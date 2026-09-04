@@ -19,12 +19,6 @@ variable "data_bucket_name" {
   type        = string
 }
 
-variable "crawler_s3_prefix" {
-  description = "Prefix/folder within the data bucket for the crawler to scan"
-  type        = string
-  default     = ""
-}
-
 variable "crawler_schedule" {
   description = "Cron schedule for the Glue crawler (default is null for run on-demand)"
   type        = string

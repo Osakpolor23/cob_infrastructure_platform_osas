@@ -14,48 +14,6 @@ variable "environment" {
   type        = string
 }
 
-variable "vpc_cidr" {
-  description = "The CIDR block of the VPC"
-  type        = string
-}
-
-variable "public_subnets" {
-  description = "Map of public subnets to create"
-  type = map(object({
-    cidr_block        = string
-    availability_zone = optional(string)
-  }))
-}
-
-variable "private_subnets" {
-  description = "Map of private subnets to create"
-  type = map(object({
-    cidr_block        = string
-    availability_zone = optional(string)
-  }))
-}
-
-variable "database_subnets" {
-  description = "Map of database subnets to create"
-  type = map(object({
-    cidr_block        = string
-    availability_zone = optional(string)
-  }))
-}
-
-variable "ingress_rules" {
-  description = "Ingress rules for the security group"
-  type = list(object({
-    description     = string
-    from_port       = number
-    to_port         = number
-    protocol        = string
-    cidr_blocks     = optional(list(string), [])
-    security_groups = optional(list(string), [])
-  }))
-  default = []
-}
-
 variable "bucket_name" {
   description = "Base name for the S3 bucket (will be prefixed with project-environment and suffixed with a six-digit random string for uniqueness)"
   type        = string
@@ -74,45 +32,4 @@ variable "iam_users" {
     console_access = bool
   }))
   default = {}
-}
-
-variable "db_name" {
-  description = "PostgreSQL database name"
-  type        = string
-  default     = "appdb_instance"
-}
-
-variable "backup_retention_period" {
-  description = "Number of days to retain automated RDS backups"
-  type        = number
-  default     = 1
-}
-
-variable "container_image" {
-  description = "Container image to run in the ECS task"
-  type        = string
-}
-
-variable "create_public_ec2" {
-  description = "Whether to create the public-facing (front-end) EC2 Auto Scaling Group"
-  type        = bool
-  default     = false
-}
-
-variable "create_private_ec2" {
-  description = "Whether to create the private (back-end) EC2 Auto Scaling Group"
-  type        = bool
-  default     = false
-}
-
-variable "create_ecs" {
-  description = "Whether to create the ECS cluster and service"
-  type        = bool
-  default     = false
-}
-
-variable "ecs_launch_type" {
-  description = "ECS launch type: FARGATE or EC2"
-  type        = string
-  default     = "FARGATE"
 }

@@ -1,3 +1,8 @@
+data "aws_s3_objects" "top_level_folders" {
+  bucket    = var.data_bucket_name
+  delimiter = "/"
+}
+
 resource "aws_glue_catalog_database" "catalog_db" {
   name        = lower(replace("${local.resource_name}_catalog_db", "-", "_"))
   description = "Glue Data Catalog database for ${var.project_name} analytics"
@@ -8,11 +13,14 @@ resource "aws_glue_crawler" "s3_crawler" {
   role          = var.glue_crawler_role_arn
   database_name = aws_glue_catalog_database.catalog_db.name
 
-  s3_target {
-    path = "s3://${var.data_bucket_name}/${var.crawler_s3_prefix}"
+  dynamic "s3_target" {
+    for_each = data.aws_s3_objects.top_level_folders.common_prefixes
+    content {
+      path = "s3://${var.data_bucket_name}/${s3_target.value}"
+    }
   }
 
-  schedule = var.crawler_schedule 
+  schedule = var.crawler_schedule
 
   configuration = jsonencode({
     Version = 1.0

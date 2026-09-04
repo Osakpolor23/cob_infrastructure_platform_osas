@@ -62,6 +62,26 @@ Athena (serverless SQL querying).
   override `crawler_schedule` with a cron expression for continuous
   freshness.
 
+- **Dynamic multi-target crawler instead of a fixed prefix:**
+  Rather than requiring a manually-specified `crawler_s3_prefix`, this
+  module uses `data.aws_s3_objects` with `delimiter = "/"` to discover the
+  bucket's top-level folders at plan/apply time, and generates one
+  `s3_target` block per discovered folder via a `dynamic` block. This
+  avoids a known Glue crawler ambiguity where scanning a bucket root
+  containing only a single dataset folder can cause that folder to be
+  folded into an unnamed partition (`partition_0`) rather than recognized
+  as a distinct table — by always giving the crawler explicitly-scoped
+  targets rather than relying on root-level heuristics, this ambiguity is
+  avoided regardless of how many dataset folders exist.
+
+  **Trade-off:** Because folder discovery happens via a Terraform data
+  source, new top-level folders are only picked up on the next
+  `terraform apply` — there is no live, automatic re-discovery without an
+  explicit Terraform run. A fully dynamic, apply-free solution would
+  require an event-driven mechanism (e.g. an EventBridge rule triggering
+  a Lambda to update crawler targets via the AWS SDK), which was
+  considered out of scope for the current version of this module.
+
 ## What Breaks This Module
 
 - **Uppercase characters surviving into the Glue database name:** The
