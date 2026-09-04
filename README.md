@@ -84,8 +84,13 @@ COB/
 │
 |── images/ 
 |   ├── cob_data_platform_architectural_diagram.gif
-|   └── deployment_screenshot.png
-|
+|   └── terraform_deployment.png
+|   └── s3_bucket_configurtion.png
+|   └── glue_data_catalog_with_discovered_tables.png
+|   └── athena_query_results.png
+|   └── athena_query_execution.png
+|   └── iam_roles.png
+|   
 └── README.md                 
 ```
 
@@ -133,12 +138,13 @@ S3 to analytics users via Glue and Athena, governed by IAM.
    read the data bucket and write to the results bucket, and nothing more.
 
 ### Deployment Screenshots
+- [terraform deployment](images/terraform_deployment.png)
+- [S3 bucket configuration](images/s3_bucket_configuration.png)
+- [Glue Data Catalog with discovered tables](images/glue_data_catalog_with_discovered_tables.png)
+- [Athena query execution](images/athena_query_execution.png)
+- [Athena query results](images/athena_query_results.png)
+- [IAM roles](images/iam_roles.png)
 
-- [S3 bucket configuration](images/s3-bucket.png)
-- [Glue Data Catalog with discovered tables](images/glue-catalog.png)
-- [Athena query execution](images/athena-query.png)
-- [Athena query results](images/athena-results.png)
-- [IAM roles and groups](images/iam-roles.png)
 
 ---
 
