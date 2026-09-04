@@ -1,6 +1,11 @@
-output "ec2_role_name" {
-  description = "The ARN of the ec2_role name"
-  value = aws_iam_role.ec2_role.name
+output "public_ec2_role_name" {
+  description = "IAM role name for the public-facing EC2 tier"
+  value       = aws_iam_role.public_ec2_role.name
+}
+
+output "private_ec2_role_name" {
+  description = "IAM role name for the private EC2 tier"
+  value       = aws_iam_role.private_ec2_role.name
 }
 
 output "ecs_execution_role_arn" {

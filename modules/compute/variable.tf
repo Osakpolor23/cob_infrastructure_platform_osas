@@ -30,8 +30,14 @@ variable "private_security_group_id" {
   type        = string
 }
 
-variable "ec2_role_name" {
-  description = "IAM role name to attach to EC2 instances via instance profile"
+variable "public_ec2_role_name" {
+  description = "IAM role name for the public-facing EC2 tier's instance profile"
+  type        = string
+  default     = null
+}
+
+variable "private_ec2_role_name" {
+  description = "IAM role name for the private EC2 tier's instance profile"
   type        = string
   default     = null
 }
@@ -170,4 +176,39 @@ variable "ecs_execution_role_arn" {
 variable "ecs_task_role_arn" {
   description = "IAM role ARN the running container assumes (from IAM module)"
   type        = string
+}
+
+variable "ecs_launch_type" {
+  description = "ECS launch type: 'FARGATE' or 'EC2'"
+  type        = string
+  default     = "FARGATE"
+
+  validation {
+    condition     = contains(["FARGATE", "EC2"], var.ecs_launch_type)
+    error_message = "ecs_launch_type must be either 'FARGATE' or 'EC2'."
+  }
+}
+
+variable "ecs_network_mode" {
+  description = "Network mode for EC2-backed tasks ('awsvpc', 'bridge', or 'host'). Ignored for Fargate, which always uses awsvpc."
+  type        = string
+  default     = "bridge"
+}
+
+variable "ecs_container_cpu" {
+  description = "Per-container CPU units (used for EC2-backed tasks; ignored for Fargate)"
+  type        = number
+  default     = null
+}
+
+variable "ecs_container_memory" {
+  description = "Per-container hard memory limit in MB (used for EC2-backed tasks; ignored for Fargate)"
+  type        = number
+  default     = null
+}
+
+variable "ecs_container_memory_reservation" {
+  description = "Per-container soft memory reservation in MB (used for EC2-backed tasks; ignored for Fargate)"
+  type        = number
+  default     = null
 }

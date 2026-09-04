@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-# Generates an ec2 IAM trust policy document in JSON format for use by ec2_role
+# Generates an ec2 IAM trust policy document in JSON format for use by public and private ec2_roles
 data "aws_iam_policy_document" "ec2_assume_role_policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -12,19 +12,40 @@ data "aws_iam_policy_document" "ec2_assume_role_policy" {
   }
 }
 
-# create the ec2_role trust policy by attaching to the generated JSON
-resource "aws_iam_role" "ec2_role" {
-  name               = "${local.resource_name}-ec2-role"
+resource "aws_iam_role" "public_ec2_role" {
+  name               = "${local.resource_name}-public-ec2-role"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role_policy.json
 }
 
-# Create the ec2 policy that allows it to be managed by AWS Systems Manager (SSM) Session Manager instead of .pem keys
-resource "aws_iam_role_policy_attachment" "ec2_ssm" {
-  role       = aws_iam_role.ec2_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"   # enables Session Manager — no SSH keys needed
+resource "aws_iam_role_policy_attachment" "public_ec2_ssm" {
+  role       = aws_iam_role.public_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
-# Generates an ecs IAM trust policy document in JSON format for use by ecs_task_execution_role
+resource "aws_iam_role" "private_ec2_role" {
+  name               = "${local.resource_name}-private-ec2-role"
+  assume_role_policy = data.aws_iam_policy_document.ec2_assume_role_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "private_ec2_ssm" {
+  role       = aws_iam_role.private_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+data "aws_iam_policy_document" "private_ec2_permissions" {
+  statement {
+    sid       = "ReadDataBucket"
+    actions   = ["s3:GetObject", "s3:ListBucket"]
+    resources = [var.data_bucket_arn, "${var.data_bucket_arn}/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "private_ec2_policy" {
+  name   = "${local.resource_name}-private-ec2-policy"
+  role   = aws_iam_role.private_ec2_role.id
+  policy = data.aws_iam_policy_document.private_ec2_permissions.json
+}
+
 data "aws_iam_policy_document" "ecs_tasks_assume_role_policy" {
   statement {
     actions = ["sts:AssumeRole"]

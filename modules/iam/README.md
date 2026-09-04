@@ -8,31 +8,38 @@ consuming application requires long-lived access keys.
 
 ## What It Creates
 
-- `aws_iam_role` — `ec2_role`, `ecs_execution_role`, `ecs_task_role`, `glue_crawler_role`
+- `aws_iam_role` — `public_ec2_role`, `private_ec2_role`,
+  `ecs_execution_role`, `ecs_task_role`, `glue_crawler_role`.
 
-- `aws_iam_role_policy_attachment` — AWS-managed policies (SSM, ECS task execution, Glue service)
+- `aws_iam_role_policy_attachment` — AWS-managed policies (SSM for both
+  EC2 roles, ECS task execution, Glue service).
 
-- `aws_iam_role_policy` — custom inline policies scoping ECS task and Glue crawler S3/Secrets access
+- `aws_iam_role_policy` — custom inline policies scoping the private EC2
+  role, ECS task role, and Glue crawler role to specific S3/Secrets
+  access.
 
-- `aws_iam_group` — `analysts`, with a policy scoping Athena/Glue/S3 access
+- `aws_iam_group` — `analysts`, with a policy scoping Athena/Glue/S3
+  access.
 - `aws_iam_user`, `aws_iam_user_group_membership`, `aws_iam_user_login_profile`
 
 ## Inputs
 
 | Name | Type | Default | Required | Description |
 |---|---|---|---|---|
-| `project_name` | `string` | `"cob"` | no | Project name |
+| `project_name` | `string` | `"COB"` | no | Project name |
 | `environment` | `string` | — | yes | Environment |
-| `data_bucket_arn` | `string` | — | yes | ARN of the S3 data bucket |
+| `data_bucket_arn` | `string` | — | yes | ARN of the S3 data bucket (used by the private EC2 role and ECS task role) |
 | `athena_results_bucket_arn` | `string` | — | yes | ARN (or wildcard pattern) of the Athena results bucket |
 | `iam_group` | `string` | — | yes | Name of the analysts group (prefixed automatically) |
 | `iam_users` | `map(object)` | `{}` | no | Map of users → `groups` (list) and `console_access` (bool) |
+
 
 ## Outputs
 
 | Name | Description |
 |---|---|
-| `ec2_role_name` | EC2 role name (for instance profile use) |
+| `public_ec2_role_name` | IAM role name for the public-facing EC2 tier (for instance profile use) |
+| `private_ec2_role_name` | IAM role name for the private EC2 tier (for instance profile use) |
 | `ecs_execution_role_arn`, `ecs_task_role_arn` | ECS role ARNs |
 | `glue_crawler_role_arn` | Glue crawler role ARN |
 | `analysts_group_name` | Generated analysts group name |
@@ -43,6 +50,38 @@ consuming application requires long-lived access keys.
   design — every role has its own `assume_role_policy` data source
   (who can assume it) distinct from its permissions attachments (what it
   can do once assumed).
+
+- **Independent IAM roles per EC2 tier.** An earlier version of this
+  module used a single shared `ec2_role` for both the public and private
+  EC2 compute tiers, attached via a single shared instance profile. This
+  meant both tiers were structurally forced to share identical
+  permissions, with no way for a front-end fleet to have narrower access
+  than a back-end fleet. This was resolved by splitting into two fully
+  independent roles — `public_ec2_role` and `private_ec2_role` — that
+  share the same **trust policy** (EC2 is the trusted principal for
+  both) but carry distinct **permissions**:
+  - `public_ec2_role` — SSM Session Manager access only. The public
+    (front-end) tier is assumed not to need direct AWS API access beyond
+    being manageable via Session Manager.
+    
+  - `private_ec2_role` — SSM access plus read-only access to the
+    project's S3 data bucket, reflecting that back-end workloads are
+    more likely to need to read application data directly.
+
+  Separating trust from permissions at the role level (rather than just
+  at the instance-profile level) means the two tiers' permissions can
+  diverge freely and immediately — adding a new permission to the
+  private tier's role has no effect on the public tier, and vice versa.
+  This mirrors the ECS execution-role/task-role split described below:
+  infrastructure plumbing and actual workload permissions are kept on
+  separate, independently adjustable identities.
+
+  **Trade-off:** this doubles the number of EC2-related IAM roles and
+  policy attachments compared to the original single-role design — more
+  resources to reason about and maintain. Given this project's scale,
+  that cost is small relative to the flexibility gained, and mirrors a
+  pattern AWS itself recommends: separate roles per distinct workload
+  tier, rather than one broad role reused everywhere.
 
 - **Execution role vs. task role split for ECS.** The execution role
   (ECS infrastructure: image pulls, log writes) and the task role
@@ -92,6 +131,12 @@ consuming application requires long-lived access keys.
 - **Group name references in `iam_users` require the exact generated
   group name** (e.g. `"cob-dev-analysts"`), not just a short label —
   brittle if naming conventions change.
+
+- **Public and private EC2 roles both currently receive only a baseline
+  permission set** (SSM only, or SSM plus S3 read) — as real application
+  requirements emerge, these policies will need to be extended per role
+  rather than assuming the current defaults are sufficient for
+  production workloads.
 
 ## Example Usage
 

@@ -10,10 +10,16 @@ data "aws_ami" "amazon_linux" {
 
 data "aws_region" "current" {}
 
-resource "aws_iam_instance_profile" "ec2_profile" {
-  count = (var.create_public_ec2 || var.create_private_ec2) ? 1 : 0
-  name  = "${local.resource_name}-ec2-profile"
-  role  = var.ec2_role_name
+resource "aws_iam_instance_profile" "public_ec2_profile" {
+  count = var.create_public_ec2 ? 1 : 0
+  name  = "${local.resource_name}-public-ec2-profile"
+  role  = var.public_ec2_role_name
+}
+
+resource "aws_iam_instance_profile" "private_ec2_profile" {
+  count = var.create_private_ec2 ? 1 : 0
+  name  = "${local.resource_name}-private-ec2-profile"
+  role  = var.private_ec2_role_name
 }
 
 resource "aws_launch_template" "public_app_server" {
@@ -23,7 +29,7 @@ resource "aws_launch_template" "public_app_server" {
   instance_type = var.public_ec2_instance_type
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.ec2_profile[0].name
+    name = aws_iam_instance_profile.public_ec2_profile[0].name
   }
 
   network_interfaces {
@@ -46,7 +52,8 @@ resource "aws_launch_template" "public_app_server" {
 
   tag_specifications {
     resource_type = "instance"
-    tags          = { Name = "${local.resource_name}-public-app-server" }
+    tags          = { 
+      Name = "${local.resource_name}-public-app-server" }
   }
 
   lifecycle {
@@ -103,7 +110,7 @@ resource "aws_launch_template" "private_app_server" {
   instance_type = var.private_ec2_instance_type
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.ec2_profile[0].name
+    name = aws_iam_instance_profile.private_ec2_profile[0].name
   }
 
   network_interfaces {
@@ -126,7 +133,8 @@ resource "aws_launch_template" "private_app_server" {
 
   tag_specifications {
     resource_type = "instance"
-    tags          = { Name = "${local.resource_name}-private-app-server" }
+    tags          = { 
+      Name = "${local.resource_name}-private-app-server" }
   }
 
   lifecycle {
@@ -195,24 +203,32 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
 resource "aws_ecs_task_definition" "task" {
   count                    = var.create_ecs ? 1 : 0
   family                   = "${local.resource_name}-task"
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = var.ecs_task_cpu
-  memory                   = var.ecs_task_memory
-  execution_role_arn       = var.ecs_execution_role_arn
-  task_role_arn            = var.ecs_task_role_arn
+  requires_compatibilities = [var.ecs_launch_type]
+  network_mode             = var.ecs_launch_type == "FARGATE" ? "awsvpc" : var.ecs_network_mode
+
+  cpu    = var.ecs_launch_type == "FARGATE" ? var.ecs_task_cpu : null
+  memory = var.ecs_launch_type == "FARGATE" ? var.ecs_task_memory : null
+
+  execution_role_arn = var.ecs_execution_role_arn
+  task_role_arn       = var.ecs_task_role_arn
 
   container_definitions = jsonencode([
     {
       name      = "${var.project_name}-container"
       image     = var.container_image
       essential = true
+
+      cpu               = var.ecs_launch_type == "EC2" ? var.ecs_container_cpu : null
+      memory            = var.ecs_launch_type == "EC2" ? var.ecs_container_memory : null
+      memoryReservation = var.ecs_launch_type == "EC2" ? var.ecs_container_memory_reservation : null
+
       portMappings = [{ containerPort = var.container_port, protocol = "tcp" }]
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs[0].name
-          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-region"        = data.aws_region.current.region
           "awslogs-stream-prefix" = "ecs"
         }
       }
@@ -226,11 +242,16 @@ resource "aws_ecs_service" "service" {
   cluster         = aws_ecs_cluster.cluster[0].id
   task_definition = aws_ecs_task_definition.task[0].arn
   desired_count   = var.ecs_desired_count
-  launch_type     = "FARGATE"
+  launch_type     = var.ecs_launch_type
 
-  network_configuration {
-    subnets          = var.private_subnet_ids
-    security_groups  = [var.private_security_group_id]
-    assign_public_ip = false
+  # awsvpc network mode (Fargate, or EC2 tasks explicitly using awsvpc)
+  # requires network_configuration; EC2 tasks using bridge/host mode do not.
+  dynamic "network_configuration" {
+    for_each = var.ecs_launch_type == "FARGATE" || var.ecs_network_mode == "awsvpc" ? [1] : []
+    content {
+      subnets          = var.private_subnet_ids
+      security_groups  = [var.private_security_group_id]
+      assign_public_ip = false
+    }
   }
 }
