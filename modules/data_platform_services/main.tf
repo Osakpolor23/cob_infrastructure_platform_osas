@@ -14,7 +14,7 @@ resource "aws_glue_crawler" "s3_crawler" {
   database_name = aws_glue_catalog_database.catalog_db.name
 
   dynamic "s3_target" {
-    for_each = data.aws_s3_objects.top_level_folders.common_prefixes
+    for_each = length(data.aws_s3_objects.top_level_folders.common_prefixes) > 0 ? data.aws_s3_objects.top_level_folders.common_prefixes : ["no folders exist yet"]
     content {
       path = "s3://${var.data_bucket_name}/${s3_target.value}"
     }

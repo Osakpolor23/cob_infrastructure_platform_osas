@@ -106,6 +106,21 @@ Athena (serverless SQL querying).
   partitions (`InheritFromTable`) — highly irregular or evolving schemas
   across partitions may require manual catalog intervention.
 
+- **Dynamic crawler target discovery requires at least one      existing
+  top-level folder in the bucket at apply time:** Since `s3_target`
+  blocks are generated from `data.aws_s3_objects.top_level_folders`,
+  applying this module against a completely empty bucket (no folders
+  uploaded yet) will fail with "must be specified" errors, since the
+  dynamic block produces zero targets. A fallback default target
+  (scanning the bucket root) is used when no folders are detected, to
+  avoid a hard failure, but this means the crawler's targeting won't
+  be meaningfully useful until real data folders exist.
+
+  **Recommended
+  order of operations:** Create the S3 bucket, upload at least one
+  dataset folder, then run `terraform apply` for the data_platform
+  module (or re-apply after initial data upload).
+
 ## Example Usage
 
 ```hcl
