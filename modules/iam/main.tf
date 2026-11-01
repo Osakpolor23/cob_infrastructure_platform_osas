@@ -193,6 +193,8 @@ resource "aws_iam_user_group_membership" "user_groups" {
   for_each = var.iam_users
   user     = aws_iam_user.users[each.key].name
   groups   = each.value.groups
+
+  depends_on = [aws_iam_group.analysts]
 }
 
 # Enable Console Access and Request Password change on first login
